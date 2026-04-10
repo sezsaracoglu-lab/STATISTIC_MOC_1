@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics Mock Exam — 100 Questions</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e0c;
+    --surface: #1a1815;
+    --surface2: #211f1b;
+    --gold: #c9a96e;
+    --gold-dim: #8a7050;
+    --text: #e8e0d0;
+    --text-muted: #8a8070;
+    --correct: #4a7c59;
+    --correct-bg: #1a2e20;
+    --wrong: #8b3a3a;
+    --wrong-bg: #2e1a1a;
+    --border: #2e2b26;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  }
+  .header-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--gold); }
+  .header-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+  .score-box {
+    display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;
+  }
+  .score-pill {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 0.35rem 1rem;
+    font-size: 0.82rem; color: var(--text-muted);
+  }
+  .score-pill span { color: var(--gold); font-weight: 500; }
+  #progressBar {
+    width: 160px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  #progressFill { height: 100%; background: var(--gold); width: 0%; transition: width .4s ease; }
+
+  /* ── Set Tabs ── */
+  .tabs {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    padding: 0 2.5rem; background: var(--surface);
+  }
+  .tab-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 0.9rem 1.8rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 400;
+    color: var(--text-muted); border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  /* ── Main Layout ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+  /* ── Set Header ── */
+  .set-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .set-label {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--gold-dim); margin-bottom: 0.5rem;
+  }
+  .set-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--text); }
+  .set-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  /* ── Question Card ── */
+  .q-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 1.4rem; overflow: hidden;
+    transition: border-color .2s;
+  }
+  .q-card.answered-correct { border-color: var(--correct); }
+  .q-card.answered-wrong { border-color: var(--wrong); }
+
+  .q-header {
+    display: flex; gap: 0.8rem; align-items: flex-start;
+    padding: 1.2rem 1.4rem 0.8rem;
+  }
+  .q-num {
+    flex-shrink: 0; width: 28px; height: 28px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; color: var(--text-muted); margin-top: 1px;
+  }
+  .q-text {
+    font-size: 0.92rem; font-weight: 400; color: var(--text); line-height: 1.6;
+    flex: 1;
+  }
+
+  /* ── Options ── */
+  .options { padding: 0 1.4rem 1.2rem 3.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .opt-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 0.65rem 1rem;
+    cursor: pointer; text-align: left;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 300;
+    color: var(--text); display: flex; gap: 0.7rem; align-items: flex-start;
+    transition: all .15s; line-height: 1.5;
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--gold-dim); color: var(--text); background: #252220; }
+  .opt-btn:disabled { cursor: default; }
+  .opt-letter {
+    flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: var(--text-muted); margin-top: 1px;
+  }
+  .opt-btn.correct { background: var(--correct-bg); border-color: var(--correct); color: #9ed4aa; }
+  .opt-btn.correct .opt-letter { background: var(--correct); color: #fff; }
+  .opt-btn.wrong-choice { background: var(--wrong-bg); border-color: var(--wrong); color: #e0a0a0; }
+  .opt-btn.wrong-choice .opt-letter { background: var(--wrong); color: #fff; }
+
+  /* ── Feedback ── */
+  .feedback {
+    margin: 0 1.4rem 1.2rem 3.2rem;
+    padding: 0.75rem 1rem;
+    border-radius: 4px; font-size: 0.82rem; line-height: 1.6;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: var(--correct-bg); border-left: 3px solid var(--correct); color: #9ed4aa; }
+  .feedback.wrong-fb { background: var(--wrong-bg); border-left: 3px solid var(--wrong); color: #e0a0a0; }
+  .feedback strong { font-weight: 500; }
+
+  /* ── Set Results ── */
+  .set-results {
+    background: var(--surface); border: 1px solid var(--gold-dim);
+    border-radius: 6px; padding: 1.8rem 2rem;
+    text-align: center; margin-top: 2rem; display: none;
+  }
+  .set-results.show { display: block; }
+  .result-score {
+    font-family: 'Playfair Display', serif; font-size: 3rem;
+    color: var(--gold); line-height: 1;
+  }
+  .result-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.4rem; }
+  .result-msg { font-size: 0.9rem; color: var(--text); margin-top: 1rem; }
+
+  /* ── Hidden panels ── */
+  .set-panel { display: none; }
+  .set-panel.active { display: block; }
+
+  /* ── Reset ── */
+  .reset-btn {
+    background: none; border: 1px solid var(--gold-dim); border-radius: 4px;
+    color: var(--gold); padding: 0.5rem 1.2rem; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    margin-top: 1rem; transition: all .2s;
+  }
+  .reset-btn:hover { background: var(--gold); color: var(--bg); }
+
+  /* ── Difficulty badge ── */
+  .diff-badge {
+    display: inline-block; font-size: 0.62rem; text-transform: uppercase;
+    letter-spacing: 0.08em; padding: 0.2rem 0.5rem; border-radius: 3px;
+    margin-left: 0.5rem; vertical-align: middle; margin-top: -1px;
+  }
+  .diff-easy { background: #1a2e20; color: #6abf82; }
+  .diff-moderate { background: #1e2535; color: #6a9ebf; }
+  .diff-hard { background: #2e1f10; color: #c9935a; }
+  .diff-tricky { background: #2a1a2e; color: #b87ebf; }
+
+  @media(max-width:600px){
+    .header { padding: 1.2rem 1rem; }
+    .tabs { padding: 0 1rem; }
+    .main { padding: 1.5rem 1rem 4rem; }
+    .options { padding-left: 1.4rem; }
+    .feedback { margin-left: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">Statistics — Mock Exam</div>
+    <div class="header-sub">EUR Psychology · Methodology & Statistics 1</div>
+  </div>
+  <div class="score-box">
+    <div class="score-pill">Set 1 &nbsp;<span id="s1score">0</span>/<span id="s1total">50</span></div>
+    <div class="score-pill">Set 2 &nbsp;<span id="s2score">0</span>/<span id="s2total">50</span></div>
+    <div>
+      <div id="progressBar"><div id="progressFill"></div></div>
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;text-align:right" id="progressLabel">0 / 100</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab(1)">Set 1 — Tutorial Exercises</button>
+  <button class="tab-btn" onclick="switchTab(2)">Set 2 — Theme Notes</button>
+</div>
+
+<div class="main">
+
+  <!-- SET 1 -->
+  <div class="set-panel active" id="panel-1">
+    <div class="set-header">
+      <div class="set-label">Set 1 of 2</div>
+      <div class="set-title">Tutorial Group Questions</div>
+      <div class="set-desc">50 questions drawn directly from Tutorial Meetings 2, 3 &amp; 4 exercise sheets</div>
+    </div>
+    <div id="questions-1"></div>
+    <div class="set-results" id="results-1">
+      <div class="result-score" id="rscore-1">—</div>
+      <div class="result-label">questions correct out of 50</div>
+      <div class="result-msg" id="rmsg-1"></div>
+      <button class="reset-btn" onclick="resetSet(1)">Reset Set 1</button>
+    </div>
+  </div>
+
+  <!-- SET 2 -->
+  <div class="set-panel" id="panel-2">
+    <div class="set-header">
+      <div class="set-label">Set 2 of 2</div>
+      <div class="set-title">Theme Notes Questions</div>
+      <div class="set-desc">50 new questions covering Themes 2, 3 &amp; 4 — similar difficulty, different wording</div>
+    </div>
+    <div id="questions-2"></div>
+    <div class="set-results" id="results-2">
+      <div class="result-score" id="rscore-2">—</div>
+      <div class="result-label">questions correct out of 50</div>
+      <div class="result-msg" id="rmsg-2"></div>
+      <button class="reset-btn" onclick="resetSet(2)">Reset Set 2</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SETS = {
+  1: [
+    // ── TUTORIAL 2 ──
+    {
+      q: "In the EUR 2019-2020 dataset of 990 students, what are the <em>cases</em>?",
+      opts: ["The variables being measured (grade, age, gender, etc.)","The 990 individual students enrolled in the programmes","The two programmes (Psychology and Pedagogical Sciences)","The exam scores on course 1.1"],
+      ans: 1, diff:"easy",
+      fb:"A case is the <strong>who or what</strong> being described — here each individual student is one case, giving 990 cases in total."
+    },
+    {
+      q: "In the EUR student dataset, the variable <em>student number</em> is best classified as:",
+      opts: ["Categorical nominal — it names categories of students","Quantitative ratio — it can be averaged","A label — used only to identify cases, not analysed statistically","Ordinal categorical — student numbers have order"],
+      ans: 2, diff:"easy",
+      fb:"Student numbers <strong>identify</strong> cases but carry no numerical meaning. They are never averaged or compared — a classic label variable."
+    },
+    {
+      q: "<em>Interest in selected programme</em> (1 = very low … 5 = very high) is measured on which scale?",
+      opts: ["Ratio — a score of 4 is twice the interest of a score of 2","Interval — the distances between points are equal and meaningful","Ordinal — the categories are ordered but distances are not guaranteed equal","Nominal — the numbers are merely category codes"],
+      ans: 2, diff:"easy",
+      fb:"The scale is <strong>ordered</strong> (4 > 3 > 2) but we cannot assume equal intervals between adjacent points, nor is there a true zero. That makes it ordinal."
+    },
+    {
+      q: "The variable <em>grade on the course exam (0–10 scale)</em> is best classified as:",
+      opts: ["Categorical ordinal","Categorical nominal","Quantitative interval — zero does not mean 'no knowledge'","Quantitative ratio — zero means truly no marks earned"],
+      ans: 3, diff:"moderate",
+      fb:"A grade of 0 is a <strong>true zero</strong> (no marks at all), so ratios like '8 is twice as good as 4' are meaningful. That places it on a ratio scale."
+    },
+    {
+      q: "<em>Performance on the first course exam</em> (below average / average / above average) is best classified as:",
+      opts: ["Quantitative ratio","Quantitative interval","Categorical ordinal ✓ — ordered categories but no numerical values","Categorical nominal — the categories have no inherent order"],
+      ans: 2, diff:"easy",
+      fb:"The three categories have a clear <strong>order</strong> but are expressed as labels, not numbers. Order exists → ordinal; no numbers → categorical."
+    },
+    {
+      q: "For the Avans University dataset (81 full-time programmes), what are the cases?",
+      opts: ["The individual students enrolled in BA-1","The 81 full-time programmes offered by Avans ✓","The three cities (Breda, Tilburg, Den Bosch)","The variables recorded for each programme"],
+      ans: 1, diff:"easy",
+      fb:"The dataset collects information <strong>about each programme</strong>, so each programme is a case — giving 81 cases."
+    },
+    {
+      q: "<em>City where the programme is offered</em> (Breda / Tilburg / Den Bosch) is measured on which scale?",
+      opts: ["Ordinal — the cities can be ranked by size","Ratio — distances between cities are measurable","Nominal — the categories have no inherent order or numerical meaning","Interval — there is an arbitrary zero city"],
+      ans: 2, diff:"easy",
+      fb:"Cities are simply <strong>unordered categories</strong>. There is no meaningful ranking among Breda, Tilburg and Den Bosch — so nominal is correct."
+    },
+    {
+      q: "<em>Percentage of students continuing to BA-2</em> is best classified as:",
+      opts: ["Categorical ordinal","Categorical nominal","Quantitative interval — zero percent is arbitrary","Quantitative ratio — zero percent means no students continued"],
+      ans: 3, diff:"moderate",
+      fb:"Zero percent means <em>no students continued at all</em> — a meaningful absolute zero. Ratios such as '60% is twice 30%' are valid, so this is a <strong>ratio</strong> variable."
+    },
+    {
+      q: "Which graphical display is most appropriate for a <em>categorical</em> variable such as city of residence?",
+      opts: ["Histogram — bars represent numerical ranges","Bar chart — each separate bar represents a category","Boxplot — shows five-number summary","Normal quantile plot — checks for normality"],
+      ans: 1, diff:"easy",
+      fb:"<strong>Bar charts</strong> are used for categorical data. The bars are separated (categories are distinct), unlike histograms where bars touch (numerical ranges)."
+    },
+    {
+      q: "Which graphical display is most appropriate for a <em>quantitative continuous</em> variable such as exam grade?",
+      opts: ["Pie chart — shows proportions of categories","Bar chart — each bar is a separate category","Histogram — groups values into touching bins showing shape and spread","Frequency table only — graphs are not needed for quantitative data"],
+      ans: 2, diff:"easy",
+      fb:"<strong>Histograms</strong> are for numerical data. Bars touch because the underlying variable is continuous, and they reveal shape (skewness, modality)."
+    },
+    {
+      q: "A distribution skewed to the <em>left</em> (negatively skewed) has:",
+      opts: ["A longer tail extending toward higher values (to the right)","Mean greater than the median","Mean less than the median — the mean is pulled toward the long left tail","Mean equal to the median — skewness does not affect central tendency"],
+      ans: 2, diff:"moderate",
+      fb:"In a left-skewed distribution the long tail extends toward <strong>low values</strong>. The mean gets pulled in the direction of the tail, so mean &lt; median."
+    },
+    {
+      q: "Looking at Figure 8 (COVID-19 <em>hospitalised</em> patients by age, April 2020), the distribution is best described as:",
+      opts: ["Approximately symmetric — patients spread evenly across all ages","Right-skewed — most patients are young with a long tail of older patients","Left-skewed — the bulk of patients are older with few younger hospitalised cases","Uniform — all age groups are equally represented"],
+      ans: 2, diff:"moderate",
+      fb:"The majority of <strong>hospitalised</strong> patients are in older age groups (high values), with the distribution tapering toward young ages. This means the bulk is on the right and the tail extends left → left-skewed."
+    },
+    {
+      q: "On April 21 2020, 9897 people with COVID-19 were hospitalised. Using Figure 8, approximately what percentage were aged 70–84?",
+      opts: ["Approximately 10–15%","Approximately 20–25%","Approximately 30–35%","Approximately 45–50%"],
+      ans: 2, diff:"tricky",
+      fb:"Reading the 70–74, 75–79 and 80–84 bars in Figure 8 and estimating against the total of ~9897 gives roughly 30–35% of all hospitalised patients in this age band."
+    },
+    {
+      q: "For the Figure 8 hospitalisation distribution, is the <em>mean</em> approximately equal, smaller, or larger than the <em>median</em>?",
+      opts: ["Approximately equal — the distribution is nearly symmetric","Smaller — the mean is pulled toward young (low) ages","Larger — the mean is pulled toward old (high) ages","Cannot be determined from a histogram alone"],
+      ans: 2, diff:"moderate",
+      fb:"The distribution is left-skewed (bulk at older ages). The mean follows the tail, so it is pulled toward the <strong>older, higher</strong> end → mean &gt; median."
+    },
+    {
+      q: "Exam scores are recorded as whole numbers on a 100-point scale. Is the variable <em>performance on the statistics exam</em> discrete or continuous?",
+      opts: ["Continuous — any decimal value is theoretically possible","Discrete — only whole integer values (0, 1, 2, … 100) are possible","Categorical ordinal — the scale has ordered levels","It depends on the sample size"],
+      ans: 1, diff:"easy",
+      fb:"Because only <strong>whole-number values</strong> are recorded (no decimals), the variable takes a countable set of values → discrete."
+    },
+    {
+      q: "For the 10-score dataset: 62, 93, 54, 76, 73, 98, 64, 55, 80, 71 — what is the <em>median</em>?",
+      opts: ["71","72","73","74"],
+      ans: 1, diff:"moderate",
+      fb:"Sorted: 54, 55, 62, 64, 71, 73, 76, 80, 93, 98. With n=10 (even), median = (5th + 6th)/2 = (71 + 73)/2 = <strong>72</strong>."
+    },
+    {
+      q: "For the same 10-score dataset (62, 93, 54, 76, 73, 98, 64, 55, 80, 71), what is Q1?",
+      opts: ["55","60","62","64"],
+      ans: 2, diff:"moderate",
+      fb:"Lower half (below median): 54, 55, 62, 64, 71. The median of 5 values = 3rd value = <strong>62</strong>."
+    },
+    {
+      q: "Using Q1 = 62 and Q3 = 80 for the 10-score dataset, what is the IQR?",
+      opts: ["16","17","18","20"],
+      ans: 2, diff:"moderate",
+      fb:"IQR = Q3 − Q1 = 80 − 62 = <strong>18</strong>. The IQR spans the middle 50% of the data."
+    },
+    {
+      q: "For the 10-score dataset (sum = 726), what is the <em>mean</em>?",
+      opts: ["71.0","72.0","72.6","73.0"],
+      ans: 2, diff:"moderate",
+      fb:"Mean = 726 / 10 = <strong>72.6</strong>. This is close to the median (72), suggesting a roughly symmetric distribution."
+    },
+    {
+      q: "Using the 1.5 × IQR rule (Q1 = 62, Q3 = 80, IQR = 18), are there outliers in the 10-score dataset?",
+      opts: ["Yes — 98 exceeds the upper fence","Yes — 54 falls below the lower fence","No — all values lie within the fences (35 to 107)","Yes — both 54 and 98 are outliers"],
+      ans: 2, diff:"moderate",
+      fb:"Lower fence = 62 − 27 = 35; Upper fence = 80 + 27 = 107. All values (54–98) lie between 35 and 107 → <strong>no outliers</strong>."
+    },
+    {
+      q: "For the 9-score dataset: 81, 73, 93, 85, 75, 98, 93, 55, 80 — what is the median?",
+      opts: ["80","81","82","83"],
+      ans: 1, diff:"moderate",
+      fb:"Sorted: 55, 73, 75, 80, <strong>81</strong>, 85, 93, 93, 98. With n=9 (odd), median = 5th value = <strong>81</strong>."
+    },
+    {
+      q: "For the 9-score dataset (Exercise 5), Q1 is calculated from the <em>lower half excluding the median</em>: 55, 73, 75, 80. What is Q1?",
+      opts: ["73","74","75","76"],
+      ans: 1, diff:"moderate",
+      fb:"Lower half: 55, 73, 75, 80 (4 values). Q1 = (73 + 75)/2 = <strong>74</strong>."
+    },
+    {
+      q: "In a frequency distribution table, <em>cumulative frequency percentage</em> (cum.frq%) refers to:",
+      opts: ["The number of times a specific value occurs in the dataset","The percentage of the total sample that received exactly that value","The running total of frequency percentages up to and including that value","The percentage of values above a given score"],
+      ans: 2, diff:"easy",
+      fb:"Cumulative frequency percentage is a <strong>running total</strong> — it tells you what percentage of cases have a value <em>at or below</em> the given score. This equals the percentile rank."
+    },
+    {
+      q: "The mean exam grade is 5.5 and SD = 1.7. If 10 points are added to <em>every</em> score, the new mean and SD are:",
+      opts: ["Mean = 15.5, SD = 11.7","Mean = 15.5, SD = 1.7","Mean = 5.5, SD = 11.7","Mean = 5.5, SD = 1.7"],
+      ans: 1, diff:"moderate",
+      fb:"Adding a constant <em>shifts</em> the distribution — the mean increases by 10 to <strong>15.5</strong>. But spread is unaffected — SD stays at <strong>1.7</strong>."
+    },
+    {
+      q: "If every exam score is converted to a <em>Z-score</em>, the resulting distribution has:",
+      opts: ["Mean = original mean, SD = 1","Mean = 0, SD = original SD","Mean = 0, SD = 1","Mean = 1, SD = 0"],
+      ans: 2, diff:"easy",
+      fb:"Standardisation always produces a distribution with <strong>mean = 0</strong> and <strong>SD = 1</strong>, regardless of the original values."
+    },
+    {
+      q: "Converting scores to Z-scores <em>changes the shape</em> of the distribution:",
+      opts: ["Yes — it always produces a normal distribution","Yes — it makes the distribution more symmetric","No — linear transformations preserve shape","Yes — it produces a uniform distribution"],
+      ans: 2, diff:"moderate",
+      fb:"Z-score conversion is a linear transformation (x_new = −μ/σ + (1/σ)x). Linear transformations <strong>never change shape</strong> — they only shift and rescale."
+    },
+    {
+      q: "A uniform density curve spans values 0 to 5 with equal probability throughout. What is the <em>height</em> of the curve?",
+      opts: ["0.1","0.2","0.5","1.0"],
+      ans: 1, diff:"moderate",
+      fb:"The total area under any density curve = 1. Width = 5 − 0 = 5. Height = 1 / 5 = <strong>0.2</strong>."
+    },
+    {
+      q: "Using the standard normal table (Table A), P(Z ≤ −1.7) is approximately:",
+      opts: ["0.0446","0.9554","0.0548","0.9452"],
+      ans: 0, diff:"hard",
+      fb:"From Table A, the cumulative area to the left of Z = −1.7 is <strong>0.0446</strong> (about 4.46% of the distribution)."
+    },
+    {
+      q: "Using Table A, P(Z > −1.4) is approximately:",
+      opts: ["0.0808","0.9192","0.8192","0.1808"],
+      ans: 1, diff:"hard",
+      fb:"P(Z ≤ −1.4) ≈ 0.0808. Therefore P(Z &gt; −1.4) = 1 − 0.0808 = <strong>0.9192</strong>."
+    },
+    {
+      q: "Using Table A, P(Z > 1.5) is approximately:",
+      opts: ["0.9332","0.0668","0.8413","0.1587"],
+      ans: 1, diff:"hard",
+      fb:"P(Z ≤ 1.5) ≈ 0.9332. So P(Z &gt; 1.5) = 1 − 0.9332 = <strong>0.0668</strong>."
+    },
+    {
+      q: "Using Table A, P(1.5 < Z < 1.8) is approximately:",
+      opts: ["0.0309","0.0359","0.0409","0.0279"],
+      ans: 0, diff:"hard",
+      fb:"P(Z ≤ 1.8) ≈ 0.9641; P(Z ≤ 1.5) ≈ 0.9332. Difference = 0.9641 − 0.9332 = <strong>0.0309</strong>."
+    },
+    {
+      q: "ACT scores: μ = 21.5, σ = 5.4. Joshua's ACT score is 17. His Z-score is approximately:",
+      opts: ["−0.73","−0.83","−0.93","−1.03"],
+      ans: 1, diff:"moderate",
+      fb:"Z = (17 − 21.5) / 5.4 = −4.5 / 5.4 ≈ <strong>−0.83</strong>. This means Joshua scores 0.83 standard deviations below the mean."
+    },
+    {
+      q: "A student with an ACT score of 17 (Z ≈ −0.83) has an approximate percentile score of:",
+      opts: ["About 10th percentile","About 15th percentile","About 20th percentile","About 25th percentile"],
+      ans: 2, diff:"hard",
+      fb:"From Table A, P(Z ≤ −0.83) ≈ 0.2033 → approximately the <strong>20th percentile</strong>. This means roughly 20% of test-takers scored lower."
+    },
+    {
+      q: "SAT scores: μ = 1498, σ = 316. What proportion of students score <em>at least</em> 2040?",
+      opts: ["Approximately 2%","Approximately 4%","Approximately 8%","Approximately 12%"],
+      ans: 1, diff:"hard",
+      fb:"Z = (2040 − 1498) / 316 ≈ 1.71. P(Z &gt; 1.71) ≈ 1 − 0.9564 = 0.0436 → approximately <strong>4%</strong>."
+    },
+    {
+      q: "For Harvard's top 2.5% SAT requirement (μ = 1498, σ = 316), the minimum required SAT score is approximately:",
+      opts: ["~1900","~2000","~2117","~2250"],
+      ans: 2, diff:"hard",
+      fb:"Z for top 2.5% ≈ 1.96. Score = 1498 + 1.96 × 316 ≈ 1498 + 619 ≈ <strong>2117</strong>."
+    },
+    // ── TUTORIAL 3 ──
+    {
+      q: "In the 700-student EUR dataset (Tutorial 3), <em>self-reported motivation</em> (low/moderate/average/high) is classified as:",
+      opts: ["Quantitative ratio","Quantitative interval","Categorical ordinal","Categorical nominal"],
+      ans: 2, diff:"easy",
+      fb:"The levels have a meaningful <strong>order</strong> (high &gt; average &gt; moderate &gt; low) but the variable is expressed as named categories → categorical ordinal."
+    },
+    {
+      q: "<em>Number of correctly answered questions on the course exam</em> (out of 40) is best classified as:",
+      opts: ["Categorical ordinal","Quantitative discrete","Quantitative continuous","Categorical nominal"],
+      ans: 1, diff:"easy",
+      fb:"The scores are <strong>counts</strong> (0, 1, 2 … 40), whole numbers only → quantitative discrete."
+    },
+    {
+      q: "In a scatterplot of course 1.3 grade (x) vs course 2.2 grade (y), would it be appropriate to label one as explanatory and one as response?",
+      opts: ["Yes — the 1.3 grade causes the 2.2 grade","No — both are exam grades and neither clearly <em>causes</em> the other in any obvious direction","Yes — the 2.2 grade temporally precedes 1.3","No — only categorical variables can have explanatory/response roles"],
+      ans: 1, diff:"moderate",
+      fb:"For explanatory/response labels to apply, we need a clear directional hypothesis. Two exam grades from different courses have no obvious causal direction — the scatterplot is simply exploring <strong>association</strong>."
+    },
+    {
+      q: "Someone reports 'a correlation of r = 1.19 between student ratings and peer ratings of teaching quality.' What is wrong?",
+      opts: ["The correlation should always be negative for quality ratings","Pearson's r must lie between −1 and +1, so r = 1.19 is mathematically impossible","The correlation is too high to be meaningful","Correlation cannot be used with rating scales"],
+      ans: 1, diff:"easy",
+      fb:"Pearson's r is bounded: <strong>−1 ≤ r ≤ +1</strong>. A value above 1 is impossible and indicates a calculation error."
+    },
+    {
+      q: "A study finds <em>no correlation</em> between research productivity and teaching evaluations. Does this mean there is no relationship at all?",
+      opts: ["Yes — zero correlation means no relationship of any kind","No — there could still be a non-linear relationship that r fails to detect","Yes — Pearson's r captures all types of relationships","No — it means the relationship is negative, not zero"],
+      ans: 1, diff:"moderate",
+      fb:"Pearson's r only captures <strong>linear</strong> relationships. A perfect curve (e.g., inverted U) gives r ≈ 0. No linear correlation does not mean no relationship."
+    },
+    {
+      q: "In the dataset x: 1,2,3,4,10,10 and y: 1,3,3,5,1,11, the point (10,11) is most likely:",
+      opts: ["A typical data point well within the main cluster","An influential observation that could substantially change r if removed","An outlier only on the x-axis, with no effect on the correlation","Proof that the relationship is negative"],
+      ans: 1, diff:"moderate",
+      fb:"A point far from the main cluster in both x and y is called an <strong>influential observation</strong> — removing it would substantially change the correlation."
+    },
+    {
+      q: "For the dataset x: 25, 35, 45, 55, 65 and y: 10, 30, 50, 30, 10, the Pearson correlation r is approximately:",
+      opts: ["Close to +1 — strong positive linear relationship","Close to −1 — strong negative linear relationship","Close to 0 — because the relationship is non-linear (inverted-U shape)","Exactly 0.5"],
+      ans: 2, diff:"tricky",
+      fb:"The relationship forms a perfect inverted-U (non-linear). Pearson's r only detects <strong>linear</strong> associations — a symmetric curve gives r ≈ <strong>0</strong> even though the relationship is strong."
+    },
+    {
+      q: "The <em>restricted range problem</em> occurs when:",
+      opts: ["The correlation is larger than 1.0","Only part of the full range of a variable is sampled, which can underestimate the true correlation","Outliers inflate the correlation beyond its true value","The sample size is too small"],
+      ans: 1, diff:"moderate",
+      fb:"If only a narrow slice of x is sampled (e.g., only top university students for intelligence), there is little variation left to correlate → the correlation <strong>appears weaker</strong> than in the full population."
+    },
+    {
+      q: "In a 2×2 table of Gender × Admission, the <em>conditional distribution</em> of Admitted for Males shows:",
+      opts: ["The total number of males in the dataset","The proportion of the entire sample that is both male and admitted","The distribution of admission outcomes <em>within</em> the male group","The marginal total for the Admitted = Yes column"],
+      ans: 2, diff:"moderate",
+      fb:"A <strong>conditional distribution</strong> restricts attention to one group and shows how the other variable is distributed <em>within</em> that group — e.g., % admitted among males."
+    },
+    {
+      q: "When data from Economics and Law programmes are combined, the gender–admission relationship reverses compared to either programme alone. This is an example of:",
+      opts: ["Regression to the mean","Simpson's paradox","The restricted range problem","The bidirectionality problem"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Simpson's paradox</strong>: the direction of an association reverses when data from subgroups are aggregated, due to a lurking variable (in this case, field of study)."
+    },
+    {
+      q: "NAEP music scores follow N(150, 35). What is the Z-score for a raw score of 180?",
+      opts: ["Z = +0.57","Z = +0.86","Z = +1.00","Z = +1.14"],
+      ans: 1, diff:"hard",
+      fb:"Z = (180 − 150) / 35 = 30 / 35 ≈ <strong>0.86</strong>."
+    },
+    // ── TUTORIAL 4 ──
+    {
+      q: "Pre-master students in the bottom 25% of math scores take a refresher course but still perform <em>worse</em> on the stats exam than those without the course. Can you conclude the course has a negative effect?",
+      opts: ["Yes — the data clearly shows worse outcomes for the course group","No — the groups differed in baseline math ability before the course; this is confounding","Yes — if the result is consistent it must be causal","No — only experiments with random assignment can ever show effects"],
+      ans: 1, diff:"moderate",
+      fb:"The two groups were <strong>not comparable</strong> before treatment (course group had weaker math). The selection process, not the course, likely explains the poorer performance — classic <strong>confounding</strong>."
+    },
+    {
+      q: "US school grades: lowest 5% = F, next 10% = D, next 40% = C, next 30% = B, top 15% = A. Test scores follow N(72, 10). The Z-score cutoff between D and C corresponds approximately to:",
+      opts: ["Z = −1.65","Z = −1.28","Z = −1.04","Z = −0.84"],
+      ans: 1, diff:"hard",
+      fb:"D is the bottom 5% + next 10% = bottom 15%. The Z-score for the 15th percentile is approximately <strong>−1.04</strong>. (The D/C boundary is at the 15th percentile.)"
+    },
+    {
+      q: "A statistics teacher surveys a single student who approached him after class. What is the main disadvantage of this data?",
+      opts: ["The data is quantitative rather than categorical","The sample is not representative — one voluntary respondent is likely not typical of the class","There is no control group","The teacher should use a census instead"],
+      ans: 1, diff:"easy",
+      fb:"One voluntary, self-selected student is <strong>anecdotal data</strong>. It may reflect an unusual experience and cannot be generalised to the whole class."
+    },
+    {
+      q: "In the colour-word replication study by Gnambs et al., participants were <em>randomly assigned</em> to red or gray conditions. Why is this important?",
+      opts: ["It guarantees equal group sizes","It ensures neither researcher nor participant knows the condition","It prevents systematic bias — random assignment balances known and unknown variables across groups","It increases the statistical power of the test"],
+      ans: 2, diff:"moderate",
+      fb:"<strong>Randomisation</strong> controls for lurking variables on average — it ensures that any differences in outcome are attributable to the treatment, not pre-existing group differences."
+    },
+    {
+      q: "In the NWO grant study (Tutorial 4, Exercise 1), when social and technical domains are analysed separately there is <em>no gender bias</em>, but when combined the data <em>suggest bias</em>. This is an example of:",
+      opts: ["Regression to the mean","The restricted range problem","Simpson's paradox — the lurking variable is domain (social vs technical)","The bidirectionality problem"],
+      ans: 2, diff:"moderate",
+      fb:"The domain is a lurking variable that affects both gender distribution and success rate. Pooling the domains hides this structure — a textbook instance of <strong>Simpson's paradox</strong>."
+    },
+    {
+      q: "Which sampling design is used when 6 of 30 tutor groups are randomly selected, and then 8 students are randomly chosen from each selected group?",
+      opts: ["Simple random sample (SRS)","Stratified random sample","Multistage random sample","Voluntary response sample"],
+      ans: 2, diff:"moderate",
+      fb:"Selecting <strong>groups first</strong>, then sampling within groups, is a <strong>multistage</strong> design. It is efficient for large, geographically spread populations."
+    },
+    {
+      q: "An online poll on a news website asks visitors for their opinion and publishes the results. What type of sample is this?",
+      opts: ["Simple random sample","Stratified random sample","Voluntary response sample","Multistage sample"],
+      ans: 2, diff:"easy",
+      fb:"Only people who choose to visit the site and click the poll respond → <strong>voluntary response sample</strong>. This is heavily biased toward those with strong opinions."
+    },
+    {
+      q: "The CBS discrimination survey had a 24% response rate. The text notes 'a low response does not necessarily cause problems when it is random.' What does this mean?",
+      opts: ["If enough people respond, the sample is always representative","If non-respondents are similar to respondents on key variables, results remain valid","Random non-response means the sample is automatically unbiased","Lower response rates always mean higher accuracy"],
+      ans: 1, diff:"tricky",
+      fb:"Non-response is only problematic when those who don't respond <strong>differ systematically</strong> from those who do. If non-response is random (unrelated to the topic), bias is minimal."
+    },
+    {
+      q: "Oversampling of Turkish, Moroccan and other migrant groups in the CBS discrimination survey:",
+      opts: ["Creates bias because it over-represents these groups","Is done to ensure sufficient respondents for meaningful subgroup analysis, and can be corrected through weighting","Makes the total sample size unreliable","Is the same as a voluntary response sample"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Oversampling</strong> minority groups is a deliberate strategy to enable reliable subgroup estimates. Results can be weighted back to the population distribution when reporting overall figures."
+    },
+    {
+      q: "<em>Informed consent</em> in research means:",
+      opts: ["Participants must pay for the study","Participants agree to take part after being informed of the study's nature, procedures, and potential risks","All data is made publicly available immediately","Researchers keep all findings confidential"],
+      ans: 1, diff:"easy",
+      fb:"<strong>Informed consent</strong> requires that participants <em>know what they are agreeing to</em> before data is collected — including risks, purpose and their right to withdraw."
+    },
+    {
+      q: "The distinction between <em>anonymity</em> and <em>confidentiality</em> in research is:",
+      opts: ["They mean exactly the same thing — both protect participant identity","Anonymity: no one can link responses to an individual. Confidentiality: researchers may know who responded but protect that information","Confidentiality applies only to clinical data; anonymity is used in surveys","Anonymity requires written consent; confidentiality does not"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Anonymous</strong> data cannot be traced back to any person. <strong>Confidential</strong> data may be identified by researchers but is not disclosed to others — a meaningful legal and ethical difference."
+    },
+  ],
+
+  2: [
+    // ── THEME 2 — Fundamentals of Data ──
+    {
+      q: "A <em>value</em> in a dataset is best defined as:",
+      opts: ["A variable that is measured repeatedly","The recorded outcome of one variable for one case","The total number of cases in the dataset","The column header in a data table"],
+      ans: 1, diff:"easy",
+      fb:"A <strong>value</strong> is a single recorded measurement — one variable, one case. Example: Age = 21 for student #4."
+    },
+    {
+      q: "A researcher cannot calculate an average for a variable. According to the memory trick in your notes, this variable is most likely:",
+      opts: ["Ratio","Interval","Ordinal","Categorical"],
+      ans: 3, diff:"easy",
+      fb:"Memory trick: 'If I can <strong>not</strong> calculate an average, it is categorical.' Categorical variables (nominal or ordinal) use counts, not means."
+    },
+    {
+      q: "IQ score is given as an example of which level of measurement in your notes?",
+      opts: ["Ratio — a score of 0 means no intelligence","Ordinal — IQ can only be ranked","Interval — 0 IQ is not 'no intelligence'; the zero is arbitrary","Nominal — IQ is a label"],
+      ans: 2, diff:"moderate",
+      fb:"<strong>Interval</strong>: differences between IQ scores are meaningful, but IQ = 0 does not mean complete absence of intelligence — the zero point is arbitrary."
+    },
+    {
+      q: "Which of the following is an example of a <em>ratio</em> variable?",
+      opts: ["Temperature in Celsius","Year of birth","Reaction time in milliseconds (0 ms = instantaneous)","IQ score"],
+      ans: 2, diff:"moderate",
+      fb:"<strong>Reaction time</strong>: 0 ms means a truly instantaneous response (absolute zero). Ratios are valid (200 ms is twice as slow as 100 ms). Celsius and year of birth have arbitrary zeros."
+    },
+    {
+      q: "The <em>independent variable</em> in an experimental context is plotted on the:",
+      opts: ["Y-axis (vertical axis) — because it is the outcome","X-axis (horizontal axis) — because it is what we manipulate or change","Z-axis — for three-dimensional analysis","Neither axis — it is represented by colour or symbol"],
+      ans: 1, diff:"easy",
+      fb:"Convention: the <strong>independent (explanatory) variable goes on the x-axis</strong>; the dependent (response) variable goes on the y-axis."
+    },
+    {
+      q: "A <em>situational variable</em> in your notes describes:",
+      opts: ["A pre-existing characteristic of an individual such as age or gender","The environment or condition in which data are collected, often manipulated in experiments","The dependent variable being measured","A variable that cannot be operationally defined"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Situational variables</strong> describe the context/environment (e.g., noise level, teaching method). They differ between stimuli, not between individuals."
+    },
+    {
+      q: "A <em>mediator variable</em> answers the question:",
+      opts: ["FOR WHOM does X affect Y?","WHEN does X affect Y?","WHY or HOW does X affect Y?","WHETHER X affects Y at all"],
+      ans: 2, diff:"moderate",
+      fb:"A <strong>mediator</strong> sits in the causal chain between X and Y, explaining the <em>mechanism</em>. Memory: Mediator = the WHY variable."
+    },
+    {
+      q: "A <em>moderator variable</em> answers the question:",
+      opts: ["Why does X cause Y?","For whom or when is the effect of X on Y stronger or weaker?","What is the mean of Y when X is held constant?","Whether X and Y are associated at all"],
+      ans: 1, diff:"moderate",
+      fb:"A <strong>moderator</strong> changes the <em>strength or direction</em> of the X→Y relationship. Memory: Moderator = WHEN / FOR WHOM."
+    },
+    {
+      q: "A <em>hypothetical construct</em> such as 'anxiety' is used in psychology because:",
+      opts: ["It can be directly observed without measurement instruments","It is inferred from observable indicators (indicators) and cannot be observed directly","It is a ratio-level variable with an absolute zero","It requires no operational definition"],
+      ans: 1, diff:"moderate",
+      fb:"Constructs like anxiety, motivation or intelligence are <strong>not directly visible</strong> — we infer them from behaviour or responses. You never observe the construct itself; you observe its <strong>indicators</strong>."
+    },
+    {
+      q: "<em>Test-retest reliability</em> assesses:",
+      opts: ["Whether the test covers all aspects of the construct domain","Agreement between multiple observers rating the same behaviour","Consistency of scores when the same test is given to the same people on two separate occasions","Internal consistency by splitting the test into two halves"],
+      ans: 2, diff:"easy",
+      fb:"<strong>Test-retest reliability</strong>: same test, same participants, different times. A high correlation between the two administrations indicates stable measurement."
+    },
+    {
+      q: "Your notes state: 'A test can be reliable but not valid.' The best example of this is:",
+      opts: ["A test that measures anxiety but has low internal consistency","A bathroom scale that consistently reads 2 kg too heavy (systematic error but consistent)","A test that produces different results each time it is administered","A test that correlates highly with a future criterion"],
+      ans: 1, diff:"moderate",
+      fb:"The scale gives <strong>consistent</strong> (reliable) readings but those readings are consistently <strong>wrong</strong> (not accurate/valid). Reliability concerns consistency; validity concerns correctness."
+    },
+    {
+      q: "<em>Construct validity</em> is considered the most comprehensive form of validity because:",
+      opts: ["It relies purely on expert judgment without statistical testing","It evaluates whether the instrument behaves according to the full set of theoretical expectations for the construct","It guarantees the test also has content and criterion validity","It only requires a single correlation with one criterion measure"],
+      ans: 1, diff:"hard",
+      fb:"<strong>Construct validity</strong> evaluates whether the test <em>fits</em> a nomological network of theory — it encompasses convergent validity (correlates with similar constructs) and discriminant validity (does not correlate with unrelated constructs)."
+    },
+    {
+      q: "According to your notes, describing a distribution always follows the <strong>SOCS</strong> framework. SOCS stands for:",
+      opts: ["Scale, Outliers, Centre, Spread","Shape, Outliers, Centre, Spread","Skewness, Observations, Counts, Standard deviation","Summary, Observations, Correlation, Shape"],
+      ans: 1, diff:"easy",
+      fb:"<strong>SOCS</strong>: Shape, Outliers, Centre, Spread. This is the standard framework for describing any distribution in your exam."
+    },
+    {
+      q: "A <em>stemplot</em> is most useful when:",
+      opts: ["The dataset has thousands of observations and a broad range","The dataset is small and you want to preserve the actual data values","The variable is categorical and bars are needed","A comparison of two quantitative distributions is not needed"],
+      ans: 1, diff:"easy",
+      fb:"Stemplots work best for <strong>small datasets</strong> because they display actual values. For large datasets, histograms are more practical."
+    },
+    {
+      q: "The <em>empirical rule</em> for a normal distribution states that approximately <strong>95%</strong> of observations lie within:",
+      opts: ["1 standard deviation of the mean","2 standard deviations of the mean","3 standard deviations of the mean","1.5 standard deviations of the mean"],
+      ans: 1, diff:"easy",
+      fb:"68–95–99.7 rule: <strong>68%</strong> within ±1σ, <strong>95%</strong> within ±2σ, <strong>99.7%</strong> within ±3σ."
+    },
+    // ── THEME 3 — Variable Relationships ──
+    {
+      q: "Two variables are said to be <em>associated</em> only when:",
+      opts: ["Both are measured at the ratio level","One variable causes the other","They are measured on the same cases — both X and Y come from the same individuals","They are measured in the same units"],
+      ans: 2, diff:"easy",
+      fb:"Association requires measuring both variables on the <strong>same observational units (cases)</strong>. Measuring stress from students and tools from employees does not give an association."
+    },
+    {
+      q: "A researcher finds that cities with more ice cream sales also have more drowning deaths. The most likely explanation is:",
+      opts: ["Ice cream causes drowning","Drowning causes people to eat ice cream","A lurking variable (summer heat) drives both variables simultaneously","The sample size is too small for a valid correlation"],
+      ans: 2, diff:"easy",
+      fb:"This is the classic <strong>common response</strong> example. Neither variable causes the other — both respond to the same lurking variable (temperature/season)."
+    },
+    {
+      q: "Income is a lurking variable in the relationship between stress-management tools and stress levels because:",
+      opts: ["Income is on the x-axis","Higher income allows people to afford more tools AND independently reduces financial stress — it drives both variables","Income and stress are perfectly correlated","Income is a mediator variable, not a lurking variable"],
+      ans: 1, diff:"moderate",
+      fb:"A <strong>lurking variable</strong> influences both X and Y without being included in the study. High income → more tools (X↑) AND less financial stress (Y↓) — creating a spurious X–Y association."
+    },
+    {
+      q: "Pearson's correlation r is calculated using the formula r = 1/(n−1) Σ[(x−x̄)/sₓ · (y−ȳ)/sᵧ]. This means r is essentially:",
+      opts: ["The average squared distance of data points from the regression line","The average product of standardised (Z-score) values of x and y","The slope of the regression line between x and y","The proportion of variance in y explained by x"],
+      ans: 1, diff:"hard",
+      fb:"r is the <strong>average product of Z-scores</strong> for x and y. When high Z(x) pairs with high Z(y) consistently, the products are positive and r is positive."
+    },
+    {
+      q: "If r = 0.7, what percentage of variation in Y is accounted for by X?",
+      opts: ["7%","49%","70%","30%"],
+      ans: 1, diff:"moderate",
+      fb:"The <strong>coefficient of determination r²</strong> = 0.7² = 0.49 = <strong>49%</strong>. Nearly half of the variation in Y is associated with X."
+    },
+    {
+      q: "You apply a linear transformation to all x-values (e.g., convert cm to metres). The correlation r between x and y:",
+      opts: ["Increases proportionally","Decreases proportionally","Remains unchanged — r is calculated from Z-scores and is unit-free","Changes sign if b is negative"],
+      ans: 2, diff:"moderate",
+      fb:"r is based on <strong>standardised (Z-score) values</strong>, which are dimensionless. Multiplying by a positive constant leaves the Z-scores unchanged → r unchanged. (If b &lt; 0, the sign of r flips.)"
+    },
+    {
+      q: "Your notes state 'correlation is sensitive to outliers.' One extreme point can:",
+      opts: ["Only reduce a correlation, never increase it","Pull the regression line, inflate r, or even reverse its direction","Only affect Spearman's rho, not Pearson's r","Have no effect if the sample size exceeds 30"],
+      ans: 1, diff:"moderate",
+      fb:"A single <strong>influential outlier</strong> can pull the line, inflate or deflate r, or even reverse its sign — 'one dot can lie louder than a thousand others.'"
+    },
+    {
+      q: "Spearman's rho is preferred over Pearson's r when:",
+      opts: ["The relationship is perfectly linear","Data are measured on an ordinal scale or the assumptions of Pearson's r are violated","The sample size is large (n > 200)","Both variables are normally distributed"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Spearman's rho</strong> uses ranks rather than raw values, making it suitable for <strong>ordinal data</strong> or when Pearson's assumptions (linearity, no extreme outliers) are violated."
+    },
+    {
+      q: "Memory hook from your notes: 'Pearson = numbers; Spearman = order.' What does this mean practically?",
+      opts: ["Pearson uses raw data values; Spearman uses only the rank-order of the data","Pearson is always larger than Spearman","Spearman can detect negative correlations; Pearson cannot","Pearson requires more cases than Spearman"],
+      ans: 0, diff:"easy",
+      fb:"Pearson computes with <strong>actual values</strong>; Spearman converts scores to <strong>ranks</strong> and correlates those. This makes Spearman more robust to outliers and applicable to ordinal data."
+    },
+    {
+      q: "A <em>correlational study</em> differs from an experiment primarily because:",
+      opts: ["It uses larger samples","No variable is manipulated — researchers measure naturally occurring variables","It cannot detect relationships between variables","It requires a control group"],
+      ans: 1, diff:"easy",
+      fb:"In a <strong>correlational study</strong>, you observe; you do not interfere or manipulate. 'You collect two things, look for a pattern, but never force change.'"
+    },
+    {
+      q: "A <em>cross-sectional design</em> measures x and y at the same time. The main limitation for establishing causality is:",
+      opts: ["The sample size is typically too small","It cannot compute correlations","Both variables measured simultaneously means temporal order is unclear","It requires random assignment"],
+      ans: 2, diff:"moderate",
+      fb:"Causality requires that the cause <strong>precedes</strong> the effect in time. In cross-sectional designs, x and y are measured simultaneously → <strong>temporal order cannot be established</strong>."
+    },
+    {
+      q: "The <em>third variable problem</em> in correlational research refers to:",
+      opts: ["A situation where three variables are all positively correlated","A lurking variable z causing both x and y, creating a spurious x–y correlation","The problem of measuring a third outcome variable","The restricted range problem affecting a third variable"],
+      ans: 1, diff:"moderate",
+      fb:"The <strong>third variable problem</strong>: z causes both x and y, making x and y appear related when there is no direct causal link between them."
+    },
+    {
+      q: "To conclude that X <em>causes</em> Y, your notes list five criteria (SCDTP). Which criterion requires that X occur <em>before</em> Y?",
+      opts: ["Strong relationship","Consistent relationship","Dose–response relationship","Temporal order (X must precede Y)"],
+      ans: 3, diff:"moderate",
+      fb:"<strong>Temporal order (T in SCDTP)</strong>: the cause must come before the effect. If X happens after Y, causality is logically impossible."
+    },
+    {
+      q: "According to your notes, <em>confounding</em> (type 3 of causality) occurs when:",
+      opts: ["X and Y both respond to the same third variable z","The effects of x and another variable z on y cannot be separated","X directly causes Y with no intervening variable","The relationship between x and y is non-linear"],
+      ans: 1, diff:"hard",
+      fb:"<strong>Confounding</strong>: multiple causes are so intertwined that you cannot tell which is responsible. Example: study time (x), intelligence (z), and exam score (y) — both x and z affect y and they co-vary."
+    },
+    {
+      q: "A <em>spurious correlation</em> looks real but is actually caused by:",
+      opts: ["Measurement error in x","A third variable z that causes both x and y","Too large a sample size","Non-linear transformation of the data"],
+      ans: 1, diff:"easy",
+      fb:"A <strong>spurious correlation</strong> is a correlation that looks real (r ≠ 0) but is entirely explained by a third variable — there is no direct x–y relationship. Key exam vocabulary."
+    },
+    // ── THEME 4 — Experimental Research ──
+    {
+      q: "<em>Anecdotal data</em> is considered weak evidence for general conclusions primarily because:",
+      opts: ["It is collected by non-scientists","Individual stories come from small, non-systematic, potentially unrepresentative samples","It cannot be published in academic journals","It always involves self-report measures"],
+      ans: 1, diff:"easy",
+      fb:"<strong>Anecdotal data</strong> feels convincing because it is personal, but is based on <strong>single cases or small convenience samples</strong> with selection bias — not systematically collected or representative."
+    },
+    {
+      q: "The <em>placebo effect</em> explains why a control group must receive an inactive treatment rather than simply <em>no treatment</em> in drug trials, because:",
+      opts: ["Ethical guidelines require all participants receive something","People may improve simply because they <em>believe</em> they are being treated, independent of any active ingredient","The placebo group serves as the experimental group in disguise","No treatment would confound the baseline measurement"],
+      ans: 1, diff:"moderate",
+      fb:"The <strong>placebo effect</strong>: improvement from belief alone. Without a placebo control, you cannot distinguish active drug effects from expectation-driven improvement."
+    },
+    {
+      q: "In the random digits method for selecting a sample of 20 from 900 students, which of the following numbers should be <em>rejected</em>?",
+      opts: ["454","677","000","170"],
+      ans: 2, diff:"moderate",
+      fb:"<strong>000</strong> is invalid because units are labelled 001–900 — there is no unit 000. Numbers larger than 900 and repeated numbers are also rejected."
+    },
+    {
+      q: "A <em>between-subjects design</em> means:",
+      opts: ["The researcher collects data between different subject areas","Each participant experiences only ONE experimental condition","Each participant experiences all experimental conditions","The study compares between-group means and within-group variance equally"],
+      ans: 1, diff:"easy",
+      fb:"<strong>Between-subjects</strong>: different people get different conditions — 'one version per person.' Contrast with within-subjects where every person experiences all conditions."
+    },
+    {
+      q: "A major <em>advantage</em> of a within-subjects design over a between-subjects design is:",
+      opts: ["No order effects can occur","It requires more participants","Groups are perfectly matched because they consist of the same participants","It can be used even when carryover effects are severe"],
+      ans: 2, diff:"moderate",
+      fb:"The key advantage: within-subjects gives <strong>perfectly matched groups</strong> (same people), eliminating individual differences as a source of variance."
+    },
+    {
+      q: "<em>Order effects</em> occur only in within-subjects designs. A <em>practice effect</em> is when:",
+      opts: ["Participants perform worse as they move through conditions","Participants perform better in later conditions because of learning from repetition","One condition makes the next one feel different (carryover)","Participants guess the research purpose"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Practice effect</strong>: performance improves simply because of <em>repetition/learning</em>, not the treatment — this inflates scores in later conditions."
+    },
+    {
+      q: "<em>Counterbalancing</em> in a within-subjects design reduces order effects by:",
+      opts: ["Removing participants who show order effects","Having different participants experience conditions in different orders","Adding a washout period between conditions","Randomly assigning each condition independently"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Counterbalancing</strong>: distribute orders across participants (e.g., Group 1: A→B; Group 2: B→A). Order advantages cancel out across the groups."
+    },
+    {
+      q: "An <em>extraneous variable</em> differs from a <em>confounding variable</em> in that:",
+      opts: ["Extraneous variables cannot influence the dependent variable","A confounding variable systematically co-varies with the independent variable, making its effect inseparable; extraneous variables are just uncontrolled background noise","They are the same thing","Confounding variables are only found in observational studies"],
+      ans: 1, diff:"hard",
+      fb:"<strong>Extraneous</strong>: any variable not central to the research question. <strong>Confounding</strong>: an extraneous variable that <em>systematically varies with the IV</em> — this is the dangerous one that can mimic or mask treatment effects."
+    },
+    {
+      q: "A <em>matched pairs design</em> is an improvement over a basic between-subjects design because:",
+      opts: ["It eliminates all order effects","Pairs of similar participants are formed before treatment, reducing pre-existing group differences","It allows every participant to receive every treatment","It removes the need for a control group"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Matched pairs</strong>: pair participants on important characteristics (age, gender, baseline score) before random assignment to conditions — this reduces confounding from pre-existing differences."
+    },
+    {
+      q: "'Lack of realism' (low ecological validity) in experiments means that:",
+      opts: ["The sample size is too small to be realistic","Artificial lab conditions may not reflect real-world behaviour, limiting generalisation","Participants were not randomly assigned","The researcher lacked real experience with the topic"],
+      ans: 1, diff:"easy",
+      fb:"<strong>Ecological validity</strong>: does what we measure in the lab reflect real-life behaviour? Low ecological validity = the artificial setting may produce different responses than the real world."
+    },
+    {
+      q: "A <em>stratified random sample</em> is specifically useful when:",
+      opts: ["The population is completely homogeneous","You want to ensure adequate representation of specific subgroups by sampling separately within each group","Geographic spread makes cluster sampling impossible","You want to minimise sample size"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Stratified sampling</strong> divides the population into homogeneous strata (e.g., departments, age groups) and takes an SRS from each, ensuring <strong>subgroup representation</strong>."
+    },
+    {
+      q: "Your notes state that <em>randomisation</em> is stronger than <em>matching</em> for controlling confounders because:",
+      opts: ["Randomisation always produces equal group sizes","Randomisation controls for <em>all</em> lurking variables on average — including ones the researcher has not thought of","Matching can produce smaller groups","Randomisation is cheaper to implement"],
+      ans: 1, diff:"moderate",
+      fb:"Matching can only control for <strong>known</strong> variables. Randomisation balances <strong>all</strong> variables — known and unknown — across groups on average. That is the core logic of the experiment."
+    },
+    {
+      q: "The <em>Latin square design</em> in within-subjects research is used to:",
+      opts: ["Increase the number of conditions to a perfect square","Control for order effects without requiring all possible orderings — each condition appears once in each position","Ensure the same participants appear in every cell","Replace randomisation with systematic assignment"],
+      ans: 1, diff:"hard",
+      fb:"The <strong>Latin square</strong>: a matrix where each condition appears exactly once in each row and column. It controls order effects efficiently without requiring all possible sequences (n! orders)."
+    },
+    {
+      q: "According to your notes, <em>double-blind</em> studies are designed to prevent:",
+      opts: ["Order effects in within-subjects designs","Both participant and researcher expectations from biasing behaviour or measurement","The placebo effect in the control group","Undercoverage in the sampling process"],
+      ans: 1, diff:"moderate",
+      fb:"<strong>Double-blind</strong>: neither participants nor researchers know who is in which condition. This prevents expectation-driven biases from both sides from influencing results."
+    },
+    {
+      q: "A <em>block design</em> in experimental research involves:",
+      opts: ["Using building blocks as stimuli","Grouping experimental units into blocks based on a relevant characteristic first, then randomly assigning treatments within each block","Blocking data collection periods across days of the week","Assigning all members of a block to the same treatment"],
+      ans: 1, diff:"hard",
+      fb:"<strong>Block design</strong>: form blocks of similar units (e.g., by gender or age), then randomise within each block. This reduces variability and controls for the blocking variable."
+    },
+  ]
+};
+
+// ── State ──
+const state = {
+  answered: { 1: new Set(), 2: new Set() },
+  correct:  { 1: 0, 2: 0 },
+  total: { 1: 50, 2: 50 }
+};
+
+function updateProgress(){
+  const done = state.answered[1].size + state.answered[2].size;
+  document.getElementById('progressFill').style.width = (done/100*100)+'%';
+  document.getElementById('progressLabel').textContent = done+' / 100';
+  document.getElementById('s1score').textContent = state.correct[1];
+  document.getElementById('s2score').textContent = state.correct[2];
+}
+
+function buildSet(setId){
+  const qs = SETS[setId];
+  const container = document.getElementById('questions-'+setId);
+  container.innerHTML = '';
+  qs.forEach((q, i) => {
+    const qn = i+1 + (setId===2 ? 50 : 0);
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = 'qcard-'+setId+'-'+i;
+
+    const diffBadge = `<span class="diff-badge diff-${q.diff}">${q.diff}</span>`;
+
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-num">${qn}</div>
+        <div class="q-text">${q.q}${diffBadge}</div>
+      </div>
+      <div class="options" id="opts-${setId}-${i}">
+        ${q.opts.map((o,j)=>`
+          <button class="opt-btn" id="opt-${setId}-${i}-${j}" onclick="answer(${setId},${i},${j})">
+            <span class="opt-letter">${String.fromCharCode(65+j)}</span>
+            <span>${o}</span>
+          </button>`).join('')}
+      </div>
+      <div class="feedback" id="fb-${setId}-${i}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function answer(setId, qi, chosen){
+  if(state.answered[setId].has(qi)) return;
+  state.answered[setId].add(qi);
+
+  const q = SETS[setId][qi];
+  const correct = q.ans;
+  const card = document.getElementById('qcard-'+setId+'-'+qi);
+  const fb = document.getElementById('fb-'+setId+'-'+qi);
+
+  // Disable all options
+  q.opts.forEach((_,j)=>{
+    const btn = document.getElementById('opt-'+setId+'-'+qi+'-'+j);
+    btn.disabled = true;
+    if(j===correct) btn.classList.add('correct');
+    if(j===chosen && j!==correct) btn.classList.add('wrong-choice');
+  });
+
+  const isRight = chosen === correct;
+  if(isRight) state.correct[setId]++;
+
+  card.classList.add(isRight ? 'answered-correct' : 'answered-wrong');
+
+  fb.innerHTML = `<strong>${isRight ? '✓ Correct' : '✗ Incorrect — correct answer: '+String.fromCharCode(65+correct)}</strong> — ${q.fb}`;
+  fb.className = `feedback show ${isRight ? 'correct-fb' : 'wrong-fb'}`;
+
+  updateProgress();
+
+  // Check if set complete
+  if(state.answered[setId].size === state.total[setId]){
+    showResults(setId);
+  }
+}
+
+function showResults(setId){
+  const sc = state.correct[setId];
+  const pct = Math.round(sc/50*100);
+  const el = document.getElementById('results-'+setId);
+  document.getElementById('rscore-'+setId).textContent = sc;
+  let msg = pct>=90 ? '🏛 Excellent — exam-ready on this set.' :
+            pct>=75 ? '📖 Strong result — revisit any ✗ questions.' :
+            pct>=60 ? '📝 Solid foundation — focus on the wrong ones.' :
+            '🔄 Keep practising — revisit the notes for weak areas.';
+  document.getElementById('rmsg-'+setId).textContent = msg+' ('+pct+'%)';
+  el.classList.add('show');
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function resetSet(setId){
+  state.answered[setId] = new Set();
+  state.correct[setId] = 0;
+  document.getElementById('results-'+setId).classList.remove('show');
+  buildSet(setId);
+  updateProgress();
+}
+
+function switchTab(setId){
+  [1,2].forEach(s=>{
+    document.getElementById('panel-'+s).classList.toggle('active', s===setId);
+    document.querySelectorAll('.tab-btn')[s-1].classList.toggle('active', s===setId);
+  });
+}
+
+// ── Init ──
+buildSet(1);
+buildSet(2);
+updateProgress();
+</script>
+</body>
+</html>
